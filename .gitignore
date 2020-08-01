@@ -5,7 +5,6 @@ __pycache__/
 *.idea
 # C extensions
 *.so
-./AXF
 # Distribution / packaging
 .Python
 build/
