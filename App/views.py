@@ -2,6 +2,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.core.mail import send_mail
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
+from django.template import loader
 from django.urls import reverse
 
 from AXF.settings import MEDIA_KEY_PREFIX
@@ -212,11 +213,8 @@ def logout(request):
     return redirect(reverse('axf:mine'))
 
 
-def send_email(request):
-    send_mail(
-        subject='AXF Activate email',
-        message='hello',
-        from_email='736033978@qq.com',
-        recipient_list=['960609477@qq.com'],
-    )
-    return HttpResponse('success')
+
+
+
+def activate(request):
+    return None

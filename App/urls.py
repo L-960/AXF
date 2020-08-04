@@ -15,9 +15,9 @@ urlpatterns = [
 
     url(r'^logout/', views.logout, name='logout'),
 
-
+    url(r'activate/', views.activate, name='activate'),
 
     # 测试
-    url(r'^sendemail/', views.send_email, name='send_email'),
+    # url(r'^sendemail/', views.send_email, name='send_email'),
 
 ]
