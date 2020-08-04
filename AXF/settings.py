@@ -142,7 +142,7 @@ EMAIL_HOST_PASSWORD = 'NHKUNFTFLQWQDEWX'
 SERVER_HOST = '127.0.0.1'
 SERVER_PORT = '8000'
 
-# 配置缓存 django-redis 4.9.0
+# 配置缓存 django-redi 4.9。0
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",

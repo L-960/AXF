@@ -182,9 +182,17 @@ def register(request):
 
 def login(request):
     if request.method == "GET":
+
         data = {
             'title': '登陆',
         }
+
+        error_message = request.session.get('error_message')
+
+        if error_message:
+            del request.session['error_message']
+            data['error_message'] = error_message
+
         return render(request, 'user/login.html', context=data)
 
     elif request.method == "POST":
@@ -192,17 +200,25 @@ def login(request):
         password = request.POST.get('password')
 
         users = AXFUser.objects.filter(u_username=username)
-        if users.exists() and (users.first().is_active == True):
+        if users.exists():
             user = users.first()
 
             if check_password(password, user.u_password):
-                request.session['user_id'] = user.id
-                return redirect(reverse('axf:mine'))
+
+                if user.is_active:
+                    request.session['user_id'] = user.id
+                    return redirect(reverse('axf:mine'))
+                else:
+                    print('激活失败')
+                    request.session['error_message'] = 'not activate'
+                    return redirect(reverse('axf:login'))
 
             else:
                 print('密码错误')
+                request.session['error_message'] = 'password error'
                 return redirect(reverse('axf:login'))
         print('用户不存在')
+        request.session['error_message'] = 'user is not exist'
         return redirect(reverse('axf:login'))
 
 
