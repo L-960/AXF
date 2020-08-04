@@ -1,4 +1,7 @@
+import uuid
+
 from django.contrib.auth.hashers import make_password, check_password
+from django.core.cache import cache
 from django.core.mail import send_mail
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -8,6 +11,7 @@ from django.urls import reverse
 from AXF.settings import MEDIA_KEY_PREFIX
 from App.models import MainWheel, MainNav, MainMustBuy, MainShop, MainShow, FoodType, Goods, AXFUser
 from App.views_constant import *
+from App.views_helper import send_email_activate
 
 
 def home(request):
@@ -163,6 +167,16 @@ def register(request):
 
         user.save()
 
+        # 用户完成注册，发送邮件激活
+
+        # 函数用于将10进制整数转换成16进制，以字符串形式表示。
+        # 将uuid转换为字符串
+        u_token = uuid.uuid4().hex
+        # 需要配置缓存
+        cache.set(u_token, user.id, timeout=60 * 60 * 24)
+
+        send_email_activate(username, email, u_token)
+
         return redirect(reverse('axf:login'))
 
 
@@ -178,7 +192,7 @@ def login(request):
         password = request.POST.get('password')
 
         users = AXFUser.objects.filter(u_username=username)
-        if users.exists():
+        if users.exists() and (users.first().is_active == True):
             user = users.first()
 
             if check_password(password, user.u_password):
@@ -213,8 +227,12 @@ def logout(request):
     return redirect(reverse('axf:mine'))
 
 
-
-
-
 def activate(request):
+    u_token = request.GET.get('u_token')
+    user_id = cache.get(u_token)
+    if user_id:
+        user = AXFUser.objects.get(pk=user_id)
+        user.is_active = True
+        user.save()
+        return redirect(reverse('axf:login'))
     return None

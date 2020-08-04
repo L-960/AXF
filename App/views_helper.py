@@ -10,14 +10,14 @@ def hash_str(source):
     return hashlib.new('sha512', source.encode('utf-8')).hexdigest()
 
 
-def send_email_activate(receive, u_token):
+def send_email_activate(username, email, u_token):
     # 名称
-    subject = 'AXF Activate email'
+    subject = '{} Activate email'.format(username)
     # 内容
     message = 'hello'
 
     data = {
-        'username': 'username',
+        'username': username,
         'activate_url': 'http://{}:{}/axf/activate/?u_token={}'.format(SERVER_HOST, SERVER_PORT, u_token)
     }
 
@@ -26,7 +26,7 @@ def send_email_activate(receive, u_token):
     # 源
     from_email = EMAIL_HOST_USER
     # 发送列表
-    recipient_list = [receive]
+    recipient_list = [email]
 
     send_mail(
         # 名称
