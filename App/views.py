@@ -9,7 +9,7 @@ from django.template import loader
 from django.urls import reverse
 
 from AXF.settings import MEDIA_KEY_PREFIX
-from App.models import MainWheel, MainNav, MainMustBuy, MainShop, MainShow, FoodType, Goods, AXFUser
+from App.models import MainWheel, MainNav, MainMustBuy, MainShop, MainShow, FoodType, Goods, AXFUser, Cart
 from App.views_constant import *
 from App.views_helper import send_email_activate
 
@@ -103,6 +103,17 @@ def market_with_params(request, typeid, childcid, order_rule):
         ['销量降序', ORDER_SALE_DOWN],
     ]
 
+    # 添加功能：如果登陆 商品数量显示已添加数量
+    #         未登陆   显示0
+    user_id = request.session.get('user_id')
+    cart_dict = {}
+    cart_list = []
+    if user_id:
+        cart_objs = Cart.objects.filter(c_user_id=user_id)
+        for cart in cart_objs:
+            cart_dict[cart.c_goods_id] = cart.c_goods_num
+            cart_list.append(cart.c_goods_id)
+
     data = {
         'title': '闪购',
         'foodtypes': foodtypes,
@@ -112,8 +123,18 @@ def market_with_params(request, typeid, childcid, order_rule):
         'childcid': childcid,
         'order_rule_list': order_rule_list,
         'order_rule_view': order_rule,
+        'cart_dict': cart_dict,
+        'cart_list': cart_list,
     }
     return render(request, 'main/market.html', context=data)
+
+
+from django.template.defaulttags import register
+
+# 新增管道方法，单纯方便上面函数，日后提取出来
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
 
 
 def cart(request):
@@ -247,8 +268,33 @@ def activate(request):
     u_token = request.GET.get('u_token')
     user_id = cache.get(u_token)
     if user_id:
+        # 只能激活一次 再次点击失效
+        cache.delete(u_token)
+
         user = AXFUser.objects.get(pk=user_id)
         user.is_active = True
         user.save()
         return redirect(reverse('axf:login'))
     return None
+
+
+def add_to_cart(request):
+    goodsid = request.GET.get('goodsid')
+    carts = Cart.objects.filter(c_user=request.user).filter(c_goods_id=goodsid)
+
+    if carts.exists():
+        cart_obj = carts.first()
+        cart_obj.c_goods_num = cart_obj.c_goods_num + 1
+    else:
+        cart_obj = Cart()
+        cart_obj.c_goods_id = goodsid
+        cart_obj.c_user = request.user
+    cart_obj.save()
+
+    data = {
+        'status': 200,
+        'msg': 'success',
+        'c_goods_num': cart_obj.c_goods_num,
+    }
+
+    return JsonResponse(data=data)

@@ -9,6 +9,7 @@
 {% block ext_js %}
     {{ block.super }}
     <script type="text/javascript" src="{% static 'axf/main/js/market.js' %}"></script>
+
 {% endblock %}
 
 {% block content %}
@@ -55,11 +56,19 @@
                                     </p>
                                 </div>
                             </a>
-
+                            {#    # 添加功能：如果登陆 商品数量显示已添加数量#}
+                            {#    #         未登陆   显示0#}
                             <section>
-                                <button>—</button>
-                                <span>0</span>
-                                <button>+</button>
+                                <button goodsid="{{ goods.id }}" class="subShopping">—</button>
+                                <span>
+                                    {% if goods.id in cart_list %}
+                                        {{ cart_dict | get_item:goods.id }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </span>
+
+                                <button goodsid="{{ goods.id }}" class="addShopping">+</button>
                             </section>
 
                         </li>
@@ -70,13 +79,13 @@
                         {% for foodtype_childname in foodtype_childname_list %}
 
                             {% ifequal foodtype_childname.1 childcid %}
-                                    <a href="{% url 'axf:market_with_params' typeid=typeid childcid=foodtype_childname.1 order_rule=0 %}">
-                                        <button class="btn btn-success">{{ foodtype_childname.0 }}</button>
-                                    </a>
-                                {% else %}
-                                    <a href="{% url 'axf:market_with_params' typeid=typeid childcid=foodtype_childname.1 order_rule=0 %}">
-                                        <button class="btn btn-default">{{ foodtype_childname.0 }}</button>
-                                    </a>
+                                <a href="{% url 'axf:market_with_params' typeid=typeid childcid=foodtype_childname.1 order_rule=0 %}">
+                                    <button class="btn btn-success">{{ foodtype_childname.0 }}</button>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'axf:market_with_params' typeid=typeid childcid=foodtype_childname.1 order_rule=0 %}">
+                                    <button class="btn btn-default">{{ foodtype_childname.0 }}</button>
+                                </a>
                             {% endifequal %}
 
                         {% endfor %}
@@ -87,13 +96,13 @@
                     <div>
                         {% for order_rule in order_rule_list %}
                             {% ifequal order_rule.1 order_rule_view %}
-                                    <a href="{% url 'axf:market_with_params' typeid=typeid childcid=childcid order_rule=order_rule.1%}">
-                                        <button class="btn btn-success">{{ order_rule.0 }}</button>
-                                    </a>
-                                {% else %}
-                                    <a href="{% url 'axf:market_with_params' typeid=typeid childcid=childcid order_rule=order_rule.1%}">
-                                        <button class="btn btn-default">{{ order_rule.0 }}</button>
-                                    </a>
+                                <a href="{% url 'axf:market_with_params' typeid=typeid childcid=childcid order_rule=order_rule.1 %}">
+                                    <button class="btn btn-success">{{ order_rule.0 }}</button>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'axf:market_with_params' typeid=typeid childcid=childcid order_rule=order_rule.1 %}">
+                                    <button class="btn btn-default">{{ order_rule.0 }}</button>
+                                </a>
                             {% endifequal %}
 
                         {% endfor %}
@@ -106,3 +115,4 @@
 
     </div>
 {% endblock %}
+

@@ -15,9 +15,10 @@ urlpatterns = [
 
     url(r'^logout/', views.logout, name='logout'),
 
-    url(r'activate/', views.activate, name='activate'),
+    url(r'^activate/', views.activate, name='activate'),
 
     # 测试
     # url(r'^sendemail/', views.send_email, name='send_email'),
-
+    # 添加购物车
+    url(r'^addtocart/', views.add_to_cart, name='addtocart'),
 ]

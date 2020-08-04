@@ -1,5 +1,4 @@
 # constant
-from django.contrib.messages.context_processors import messages
 
 ALL_TYPE = "0"
 
@@ -18,6 +17,3 @@ HTTP_CODE
 HTTP_USER_EXIST = 901
 HTTP_OK = 200
 
-
-
-ppp = messages

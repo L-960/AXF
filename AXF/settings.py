@@ -48,6 +48,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 注册中间件
+    'middleware.middleware.LoginMiddleware',
 
 ]
 
@@ -133,7 +135,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'static/uploads')
 
 INTERNAL_IPS = ('127.0.0.1', 'localhost',)
 
-#163授权码： NHKUNFTFLQWQDEWX
+# 163授权码： NHKUNFTFLQWQDEWX
 EMAIL_HOST = 'smtp.163.com'
 EMAIL_PORT = 25
 EMAIL_HOST_USER = 'lxy960609477@163.com'

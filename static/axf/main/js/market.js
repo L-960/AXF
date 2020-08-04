@@ -48,4 +48,30 @@ $(function () {
         var $span = $sort_rule.find("span").find("span");
         $span.removeClass("glyphicon-chevron-up").addClass("glyphicon-chevron-down")
     })
+
+    $(".subShopping").click(function () {
+        console.log('sub');
+        var $add = $(this);
+        var goodsid = $add.attr("goodsid");
+    })
+
+    $(".addShopping").click(function () {
+        console.log('add');
+        var $add = $(this);
+        var goodsid = $add.attr("goodsid");
+
+        $.get('/axf/addtocart',{'goodsid':goodsid}, function (data) {
+            //中间件检测到未登陆 就跳转登陆
+            if (data['status'] === 301 ){
+                window.open('/axf/login/', target="_self");
+            }else if(data['status'] === 200){
+                // 找兄弟节点
+                $add.prev('span').html(data['c_goods_num'])
+            }
+            // // console.log(data);
+        })
+
+    })
+
 })
+
