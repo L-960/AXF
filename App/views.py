@@ -131,6 +131,7 @@ def market_with_params(request, typeid, childcid, order_rule):
 
 from django.template.defaulttags import register
 
+
 # 新增管道方法，单纯方便上面函数，日后提取出来
 @register.filter
 def get_item(dictionary, key):
@@ -138,7 +139,14 @@ def get_item(dictionary, key):
 
 
 def cart(request):
-    return render(request, 'main/cart.html')
+    carts = Cart.objects.filter(c_user=request.user)
+
+    data = {
+        'title': '购物车',
+        'carts': carts,
+    }
+
+    return render(request, 'main/cart.html', context=data)
 
 
 def mine(request):
@@ -295,6 +303,32 @@ def add_to_cart(request):
         'status': 200,
         'msg': 'success',
         'c_goods_num': cart_obj.c_goods_num,
+    }
+
+    return JsonResponse(data=data)
+
+
+def select_cart(request):
+    cartid = request.GET.get('cartid')
+
+    cart = Cart.objects.get(pk=cartid)
+
+    if cart:
+        if cart.c_is_select:
+            cart.c_is_select = 0
+        else:
+            cart.c_is_select = 1
+        status = 200
+        msg = 'success'
+        cart.save()
+    else:
+        status = 404
+        msg = 'not found cart'
+
+    data = {
+        'is_select': cart.c_is_select,
+        'status': status,
+        'msg': msg,
     }
 
     return JsonResponse(data=data)

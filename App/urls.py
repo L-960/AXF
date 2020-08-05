@@ -21,4 +21,5 @@ urlpatterns = [
     # url(r'^sendemail/', views.send_email, name='send_email'),
     # 添加购物车
     url(r'^addtocart/', views.add_to_cart, name='addtocart'),
+    url(r'^selectcart/', views.select_cart, name='selectcart'),
 ]
