@@ -9,7 +9,8 @@ from django.template import loader
 from django.urls import reverse
 
 from AXF.settings import MEDIA_KEY_PREFIX
-from App.models import MainWheel, MainNav, MainMustBuy, MainShop, MainShow, FoodType, Goods, AXFUser, Cart
+from App.models import MainWheel, MainNav, MainMustBuy, MainShop, MainShow, FoodType, Goods, AXFUser, Cart, Order, \
+    OrderGoods
 from App.views_constant import *
 from App.views_helper import send_email_activate, get_total_price
 
@@ -165,6 +166,8 @@ def mine(request):
         data['username'] = user.u_username
         data['icon'] = MEDIA_KEY_PREFIX + user.u_icon.url
         data['is_login'] = True
+        data['order_not_pay'] = Order.objects.filter(o_user=user).filter(o_status=ORDER_STATUS_NOT_PAY).count()
+        data['order_not_receive'] = Order.objects.filter(o_user=user).filter(o_status=ORDER_STATUS_NOT_RECEIVE)
     else:
         pass
 
@@ -223,6 +226,7 @@ def login(request):
 
         if error_message:
             del request.session['error_message']
+            # request.user.delete()
             data['error_message'] = error_message
 
         return render(request, 'user/login.html', context=data)
@@ -239,6 +243,7 @@ def login(request):
 
                 if user.is_active:
                     request.session['user_id'] = user.id
+                    # request.user = user
                     return redirect(reverse('axf:mine'))
                 else:
                     print('激活失败')
@@ -416,19 +421,23 @@ def all_select(request):
     return JsonResponse(data=data)
 
 
+# 生成订单
 def make_order(request):
-
-    carts = Cart.objects.filter(c_user=request.user).filter(c_is_select=True)
+    user_id = request.session.get('user_id')
+    user = AXFUser.objects.get(pk=user_id)
+    # 获取用户订单中已选择商品
+    carts = Cart.objects.filter(c_user=user).filter(c_is_select=True)
 
     order = Order()
 
-    order.o_user = request.user
+    order.o_user = user
 
-    order.o_price = get_total_price()
+    order.o_price = get_total_price(user_id)
 
     order.save()
 
     for cart_obj in carts:
+        # 生成订单商品
         ordergoods = OrderGoods()
         ordergoods.o_order = order
         ordergoods.o_goods_num = cart_obj.c_goods_num
@@ -456,3 +465,17 @@ def order_detail(request):
     }
 
     return render(request, 'order/order_detail.html', context=data)
+
+
+def order_list_not_pay(request):
+    user_id = request.session.get('user_id')
+    user = AXFUser.objects.get(pk=user_id)
+
+    orders = Order.objects.filter(o_user=user)
+
+    data = {
+        'title': '订单列表',
+        'orders': orders
+    }
+
+    return render(request, 'order/order_list_not_pay.html', context=data)

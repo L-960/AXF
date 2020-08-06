@@ -32,8 +32,8 @@ urlpatterns = [
     url(r'^allselect/', views.all_select, name='all_select'),
     # 生成订单
     url(r'^makeorder/', views.make_order, name='make_order'),
-
+    # 订单详情页
     url(r'^orderdetail/', views.order_detail, name='order_detail'),
 
-    # url(r'^orderlistnotpay/', views.order_list_not_pay, name='order_list_not_pay'),
+    url(r'^orderlistnotpay/', views.order_list_not_pay, name='order_list_not_pay'),
 ]

@@ -133,7 +133,7 @@ $(function () {
 
     })
 
-    //生成订单
+    //生成订单 打开新页面
     $("#make_order").click(function () {
 
         var select_list = [];

@@ -51,7 +51,19 @@
 
             <nav id="nav">
                 <ul>
-                    <li>
+                    <li id="not_pay">
+                        {#                        {% ifnotequal order_not_pay 0 %}#}
+                        {#                            <span class="badge">#}
+                        {#                                {{ order_not_pay }}#}
+                        {#                            </span>#}
+                        {#                        {% endifnotequal %}#}
+                        <!--显示逻辑优化-->
+                        {% if order_not_pay and order_not_pay != 0 %}
+                            <span class="badge">
+                                {{ order_not_pay }}
+                            </span>
+                        {% else %}
+                        {% endif %}
                         <dl>
                             <dt>
                                 <span class="glyphicon glyphicon-yen"></span>

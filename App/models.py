@@ -1,5 +1,7 @@
 from django.db import models
 
+from App.views_constant import ORDER_STATUS_NOT_PAY
+
 
 class Main(models.Model):
     img = models.CharField(max_length=255)
@@ -121,6 +123,7 @@ class AXFUser(models.Model):
         db_table = 'axf_user'
 
 
+# 购物车
 class Cart(models.Model):
     c_user = models.ForeignKey(AXFUser)
     c_goods = models.ForeignKey(Goods)
@@ -130,3 +133,24 @@ class Cart(models.Model):
 
     class Meta:
         db_table = 'axf_cart'
+
+
+# 订单
+class Order(models.Model):
+    o_user = models.ForeignKey(AXFUser)
+    o_price = models.FloatField(default=0)
+    o_time = models.DateTimeField(auto_now=True)
+    o_status = models.IntegerField(default=ORDER_STATUS_NOT_PAY)
+
+    class Meta:
+        db_table = 'axf_order'
+
+
+# 订单从商品表 谁声明 谁是从表
+class OrderGoods(models.Model):
+    o_order = models.ForeignKey(Order)
+    o_goods = models.ForeignKey(Goods)
+    o_goods_num = models.IntegerField(default=1)
+
+    class Meta:
+        db_table = 'axf_ordergoods'
