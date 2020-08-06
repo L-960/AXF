@@ -1,9 +1,11 @@
 import hashlib
 
 from django.core.mail import send_mail
+from django.http import request
 from django.template import loader
 
 from AXF.settings import EMAIL_HOST_USER, SERVER_HOST, SERVER_PORT
+from App.models import Cart
 
 
 def hash_str(source):
@@ -40,3 +42,15 @@ def send_email_activate(username, email, u_token):
         recipient_list=recipient_list,
         html_message=html_message,
     )
+
+
+# 根据用户id筛选cart返回总价
+def get_total_price(user_id):
+    carts = Cart.objects.filter(c_user=user_id).filter(c_is_select=True)
+
+    total = 0
+
+    for cart in carts:
+        total = total + cart.c_goods_num * cart.c_goods.price
+    # 保留2位小数 自动四舍五入
+    return format(total, '.2f')

@@ -53,6 +53,19 @@ $(function () {
         console.log('sub');
         var $add = $(this);
         var goodsid = $add.attr("goodsid");
+        $.get('/axf/subtocart',{'goodsid':goodsid}, function (data) {
+            //中间件检测到未登陆 就跳转登陆
+            if (data['status'] === 301 ){
+                window.open('/axf/login/', target="_self");
+            }else if(data['status'] === 200){
+                // 找下一个兄弟节点
+                $add.next('span').html(data['c_goods_num'])
+            }else if(data['status'] === 302){
+                // 找下一个兄弟节点
+                $add.next('span').html(data['c_goods_num'])
+            }
+            // // console.log(data);
+        })
     })
 
     $(".addShopping").click(function () {
