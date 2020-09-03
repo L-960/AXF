@@ -1,5 +1,6 @@
 import uuid
 
+from alipay import AliPay, ISVAliPay
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.cache import cache
 from django.core.mail import send_mail
@@ -8,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.template import loader
 from django.urls import reverse
 
-from AXF.settings import MEDIA_KEY_PREFIX
+from AXF.settings import MEDIA_KEY_PREFIX, ALIPAY_APPID, APP_PRIVATE_KEY, ALIPAY_PUBLIC_KEY
 from App.models import MainWheel, MainNav, MainMustBuy, MainShop, MainShow, FoodType, Goods, AXFUser, Cart, Order, \
     OrderGoods
 from App.views_constant import *
@@ -167,7 +168,8 @@ def mine(request):
         data['icon'] = MEDIA_KEY_PREFIX + user.u_icon.url
         data['is_login'] = True
         data['order_not_pay'] = Order.objects.filter(o_user=user).filter(o_status=ORDER_STATUS_NOT_PAY).count()
-        data['order_not_receive'] = Order.objects.filter(o_user=user).filter(o_status=ORDER_STATUS_NOT_RECEIVE)
+        data['order_not_receive'] = Order.objects.filter(o_user=user).filter(
+            o_status__in=[ORDER_STATUS_NOT_RECEIVE, ORDER_STATUS_NOT_SEND]).count()
     else:
         pass
 
@@ -471,7 +473,7 @@ def order_list_not_pay(request):
     user_id = request.session.get('user_id')
     user = AXFUser.objects.get(pk=user_id)
 
-    orders = Order.objects.filter(o_user=user)
+    orders = Order.objects.filter(o_user=user).filter(o_status=ORDER_STATUS_NOT_PAY)
 
     data = {
         'title': '订单列表',
@@ -479,3 +481,56 @@ def order_list_not_pay(request):
     }
 
     return render(request, 'order/order_list_not_pay.html', context=data)
+
+
+def payed(request):
+    data = {
+        "status": 200,
+        'msg': 'payed success',
+    }
+    order_id = request.GET.get("orderid")
+
+    order = Order.objects.get(pk=order_id)
+
+    order.o_status = ORDER_STATUS_NOT_SEND
+
+    order.save()
+
+    return JsonResponse(data)
+
+
+def alipay(request):
+    # 构建支付的客户端  AlipayClient
+    alipay_client = AliPay(
+        appid=ALIPAY_APPID,
+        app_notify_url=None,  # 默认回调url
+        app_private_key_string=APP_PRIVATE_KEY,
+        alipay_public_key_string=ALIPAY_PUBLIC_KEY,  # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+        #2、sign_type设置错误
+        # 检查代码中sign_type的值是否正确，规则如下：
+        #
+        # （1）私钥为1024位长度，sign_type=RSA
+        #
+        # （2）私钥为2048位长度或者证书方式，sign_type=RSA2
+        #
+        # 注：2018年1月5日后创建的应用只支持RSA2的格式；
+        sign_type="RSA2",  # RSA 或者 RSA2
+        debug=False  # 默认False
+    )
+    # 使用Alipay进行支付请求的发起
+
+    # 主题
+    subject = "i9 20核系列 RTX2080"
+
+    # 电脑网站支付，需要跳转到https://openapi.alipay.com/gateway.do? + order_string
+    order_string = alipay_client.api_alipay_trade_page_pay(
+        out_trade_no="120",  # 订单编号
+        total_amount=100,  # 付款金额
+        subject=subject,
+        return_url="https://127.0.0.1/axf/home/",  # 交易成功后回调地址
+        notify_url="http://www.baidu.com"  # 通知地址，接受付款信息，可选, 不填则使用默认notify url
+    )
+
+    # 客户端操作
+    # 支付宝网关
+    return redirect(to="https://openapi.alipaydev.com/gateway.do?" + order_string)

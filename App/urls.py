@@ -34,6 +34,10 @@ urlpatterns = [
     url(r'^makeorder/', views.make_order, name='make_order'),
     # 订单详情页
     url(r'^orderdetail/', views.order_detail, name='order_detail'),
-
+    # 未支付订单
     url(r'^orderlistnotpay/', views.order_list_not_pay, name='order_list_not_pay'),
+
+    url(r'^payed/', views.payed, name='payed'),
+
+    url(r'^alipay/', views.alipay, name='alipay'),
 ]

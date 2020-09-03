@@ -13,6 +13,7 @@ REQUIRE_LOGIN_JSON = [
     '/axf/subshopping/',
     '/axf/all_select/',
     '/axf/makeorder/',
+    '/axf/payed/',
 ]
 
 REQUIRE_LOGIN = [

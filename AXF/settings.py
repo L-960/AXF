@@ -22,6 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '0ed08s8k$37p^=4^7&y0l#l2@kx_jdei7ccplys!)%0gk@uiue'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# 开发者服务器关闭debug静态资源就无法访问
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
@@ -154,3 +155,9 @@ CACHES = {
         }
     }
 }
+# 支付宝设置
+ALIPAY_APPID = 2021000116688282
+# APP_PRIVATE_KEY = open(os.path.join(BASE_DIR, '/alipay_config/应用私钥2048.txt'), 'r').read()
+APP_PRIVATE_KEY = open('E:\GitHub\AXF\\alipay_config\应用私钥2048.txt', 'r').read()
+# ALIPAY_PUBLIC_KEY = open(os.path.join(BASE_DIR, '/alipay_config/应用公钥2048.txt'), 'r').read()
+ALIPAY_PUBLIC_KEY = open('E:\GitHub\AXF\\alipay_config\应用公钥2048.txt', 'r').read()
